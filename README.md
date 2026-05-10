@@ -55,5 +55,52 @@ graph LR
 ## 📄 Research Paper
 This project implements the methodology described in the PRISM Research Paper.
 
+## ✅ Production Readiness v1 (Implemented)
+
+PRISM now includes a full production-hardening pass across six engineering phases:
+
+1. **Hybrid Intent Inference Core**
+   - Weighted hybrid signals (regex + multi-turn preference scoring)
+   - Confidence estimation + abstain gating
+   - Temporal decay blending with prior profile
+2. **Profile Lifecycle Controls**
+   - Profile schema v2 (`uiv`, confidence metadata, source, override)
+   - View/edit/reset support in storage APIs
+   - Temporary override with TTL
+3. **Observability**
+   - Structured runtime event logging (`data/metrics/events.jsonl`)
+   - Decision counters (`data/metrics/counters.json`)
+   - Wrong-personalization signal tracking
+4. **Evaluation Upgrade**
+   - Production metrics tracker (`clarification_rate`, `first_response_acceptance_rate`, `wrong_personalization_rate`, etc.)
+   - Extended research pipeline output to `research\outputs\evaluation_metrics.json`
+5. **Storage Hardening**
+   - Profile versioning and metadata normalization
+   - Export/delete profile methods for privacy workflows
+   - Retention policy hook (`apply_retention_policy`)
+   - Store abstraction interface for DB migration path
+6. **Release Guardrails**
+   - Rollback switch: set `PRISM_DISABLE_PERSONALIZATION=1` to disable injection globally
+   - Drift checks via runtime counters (correction/abstain rate alerts)
+
+### Updated Runtime Architecture
+
+```mermaid
+graph LR
+    A[User] --> B[Hybrid Intent Inference]
+    B --> C[Confidence + Abstain Gate]
+    C --> D[Profile Store v2]
+    D --> E[Prompt Adapter]
+    E --> F[LLM]
+    F --> A
+    E --> G[Telemetry + Drift Monitor]
+```
+
+### Running Research Evaluation
+
+```bash
+python research/01_evaluate_lmsys.py --num-samples 10000 --dataset-name OpenAssistant/oasst1
+```
+
 ## 📄 License
 MIT

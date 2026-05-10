@@ -9,33 +9,50 @@ class PrismAdapter:
     def __init__(self):
         self.builder = UIVBuilder()
 
-    def wrap_prompt(self, prompt: str, history: List[Dict[str, str]] = None) -> str:
+    def wrap_prompt(
+        self,
+        prompt: str,
+        history: List[Dict[str, str]] = None,
+        profile: Dict[str, Any] = None,
+    ) -> str:
         """
         Takes a raw prompt and history, extracts UIV, 
         and returns an optimized prompt with injected preferences.
         """
         if not history:
             return prompt
-            
-        uiv = self.builder.extract(history)
-        instructions = self.builder.get_system_instructions(uiv)
+
+        profile = profile or self.builder.extract_profile(history)
+        if not self.builder.should_inject(profile):
+            return prompt
+
+        uiv = profile["uiv"]
+        instructions = self.builder.get_system_instructions(uiv, confidence=profile["confidence"])
         
         if not instructions:
             return prompt
             
         return f"[PRISM Preference Injection: {instructions}]\n\n{prompt}"
 
-    def wrap_messages(self, messages: List[Dict[str, str]]) -> List[Dict[str, str]]:
+    def wrap_messages(
+        self,
+        messages: List[Dict[str, str]],
+        profile: Dict[str, Any] = None,
+    ) -> List[Dict[str, str]]:
         """
         Standardizes message list format (OpenAI/Anthropic style) 
         by injecting preferences into the latest turn or system prompt.
         """
         if len(messages) < 2:
             return messages
-            
+
         history = messages[:-1]
-        uiv = self.builder.extract(history)
-        instructions = self.builder.get_system_instructions(uiv)
+        profile = profile or self.builder.extract_profile(history)
+        if not self.builder.should_inject(profile):
+            return messages
+
+        uiv = profile["uiv"]
+        instructions = self.builder.get_system_instructions(uiv, confidence=profile["confidence"])
         
         if not instructions:
             return messages

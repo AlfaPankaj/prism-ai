@@ -1,13 +1,21 @@
 import gradio as gr
 import ollama
+import os
 from prism import UIVBuilder, PrismAdapter
 from prism.storage import JSONProfileStore
+from prism.metrics.clarification import ClarificationDetector
+from prism.metrics.telemetry import LocalMetricsLogger
+from prism.metrics.drift import DriftMonitor
 
 builder = UIVBuilder()
 adapter = PrismAdapter()
 store = JSONProfileStore()
+detector = ClarificationDetector()
+metrics_logger = LocalMetricsLogger()
+drift_monitor = DriftMonitor()
 
 MODEL_NAME = "llama3.2:3b"
+PERSONALIZATION_ENABLED = os.getenv("PRISM_DISABLE_PERSONALIZATION", "0") != "1"
 
 def process_chat(message, history, user_id):
     # 1. Convert Gradio history to PRISM format
@@ -25,15 +33,38 @@ def process_chat(message, history, user_id):
     current_message_str = message
     if isinstance(message, list):
         current_message_str = " ".join([item["text"] for item in message if "text" in item])
-        
+
+    is_correction = detector.is_clarification(str(current_message_str))
+    metrics_logger.record_user_feedback(user_id, str(current_message_str), is_correction=is_correction)
+
     full_history_for_uiv = prism_history + [{"role": "user", "content": str(current_message_str)}]
-    uiv = builder.extract(full_history_for_uiv)
+    previous_uiv = store.get_uiv(user_id, use_override=True) or builder.DEFAULT_UIV.copy()
+    profile = builder.extract_profile(full_history_for_uiv, previous_uiv=previous_uiv, decay=0.7)
+    uiv = profile["uiv"]
+    should_inject = builder.should_inject(profile) and PERSONALIZATION_ENABLED
     
     # 3. Save to persistent store
-    store.save_uiv(user_id, uiv)
+    store.save_profile(
+        user_id,
+        uiv=uiv,
+        confidence=float(profile["confidence"]),
+        axis_confidence=profile["axis_confidence"],
+        source="inferred",
+    )
+    metrics_logger.record_injection_decision(
+        user_id=user_id,
+        confidence=float(profile["confidence"]),
+        signal_count=int(profile["signal_count"]),
+        injected=should_inject,
+        uiv=uiv,
+    )
     
     # 4. Get Optimized messages with PRISM instructions
-    messages = adapter.wrap_messages(full_history_for_uiv)
+    messages = (
+        adapter.wrap_messages(full_history_for_uiv, profile=profile)
+        if PERSONALIZATION_ENABLED
+        else full_history_for_uiv
+    )
     
     # 5. Call LOCAL Ollama Model
     try:
@@ -50,9 +81,17 @@ def process_chat(message, history, user_id):
     return bot_message, str(uiv), optimized_prompt_str
 
 def load_user_profile(user_id):
-    uiv = store.get_uiv(user_id)
-    if uiv:
-        return f"Loaded existing profile for {user_id}: {uiv}"
+    profile = store.get_profile(user_id)
+    if profile:
+        effective_uiv = store.get_uiv(user_id, use_override=True)
+        source = profile.get("metadata", {}).get("source", "unknown")
+        confidence = profile.get("metadata", {}).get("confidence", 0.0)
+        drift = drift_monitor.evaluate(metrics_logger.get_counters())
+        return (
+            f"Loaded profile for {user_id}: {effective_uiv} "
+            f"(source={source}, confidence={confidence:.2f}, "
+            f"drift_healthy={drift['healthy']}, personalization_enabled={PERSONALIZATION_ENABLED})"
+        )
     return f"No profile found for {user_id}. Starting fresh."
 
 with gr.Blocks() as demo:

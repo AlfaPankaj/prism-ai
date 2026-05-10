@@ -36,3 +36,27 @@ PRISM proves that "Big Data" principles of user profiling can be effectively app
 - *Hugging Face Datasets: OpenAssistant/oasst1 (2023)*
 - *Ollama: Local LLM Orchestration Framework (2024)*
 - *Gradio: Interactive Machine Learning Web Interfaces (2024)*
+
+## 7. Production Hardening Update (v1)
+To move PRISM from research prototype to deployable system, we implemented a six-phase hardening plan:
+
+1. Hybrid intent extraction with confidence scoring and abstain behavior.
+2. Temporal decay over user preference history.
+3. Profile lifecycle APIs (save/view/edit/reset + temporary overrides).
+4. Structured telemetry for personalization decisions and user correction events.
+5. Storage hardening with profile schema v2, export/delete controls, and retention hooks.
+6. Operational guardrails including a personalization rollback switch and drift alerts.
+
+### 7.1 New Evaluation Metrics
+PRISM evaluation now includes production-style metrics in addition to clarification counting:
+- **clarification_rate**
+- **first_response_acceptance_rate**
+- **preventable_clarification_rate**
+- **wrong_personalization_rate**
+- **token_savings_proxy**
+- **latency_overhead_proxy**
+
+These are computed by the upgraded research evaluation pipeline and exported to `research\outputs\evaluation_metrics.json`.
+
+### 7.2 Dataset Consistency Note
+This repository currently uses `OpenAssistant/oasst1` in code. If publishing a paper version that mentions a different dataset, keep dataset references synchronized across code, markdown documents, and manuscript tables.
