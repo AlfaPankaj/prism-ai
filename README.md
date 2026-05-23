@@ -17,6 +17,39 @@ PRISM is a model-agnostic Python library and research framework designed to elim
 pip install datasets pandas ollama gradio
 ```
 
+## 🧩 CLI Plugin (OpenAI/Claude/Gemini)
+
+The CLI generates provider-ready payloads with PRISM injection so you can plug it into any API client.
+
+```bash
+# Install the package locally to get the `prism` command
+pip install -e .
+
+# Create an OpenAI-ready payload from a single user message
+prism adapt --provider openai --message "Explain vector databases"
+
+# Use a history file and output only the provider payload JSON
+prism adapt --provider anthropic --history examples/history.json --message "Summarize in bullets" --payload-only
+```
+
+**Notes**
+- Defaults: OpenAI `gpt-4o-mini`, Anthropic `claude-3-5-sonnet-latest`, Gemini `gemini-1.5-flash` (override with `--model`).
+- Disable injection globally with `PRISM_DISABLE_PERSONALIZATION=1`.
+- Output JSON includes the UIV and confidence unless you pass `--payload-only`.
+
+## 🔌 Provider Integration
+
+PRISM outputs provider-ready payloads. Pipe them into your own API client.
+
+```bash
+# Create a payload JSON for any provider
+prism adapt --provider gemini --history examples/history.json --message "Summarize in bullets" --payload-only > payload.json
+```
+
+## 🏷️ Recommended GitHub Topics
+
+`llm` · `personalization` · `prompt-engineering` · `nlp` · `rag` · `chatbots` · `gradio` · `ollama` · `gemini` · `claude` · `openai` · `ai-tools`
+
 ## 🎥 Demo in Action: Visual Tour
 
 PRISM eliminates the "Intent Alignment Tax" in 6 clear steps:

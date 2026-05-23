@@ -27,3 +27,6 @@ dependencies = [
 [project.urls]
 "Homepage" = "https://github.com/yourusername/prism-ai"
 "Bug Tracker" = "https://github.com/yourusername/prism-ai/issues"
+
+[project.scripts]
+prism = "prism.cli:main"
