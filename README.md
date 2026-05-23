@@ -13,8 +13,8 @@ PRISM is a model-agnostic Python library and research framework designed to elim
 ## 📦 Installation
 
 ```bash
-# Install core dependencies
-pip install datasets pandas ollama gradio
+# Install from PyPI
+pip install prism-intent
 ```
 
 ## 🧩 CLI Plugin (OpenAI/Claude/Gemini)
@@ -22,8 +22,8 @@ pip install datasets pandas ollama gradio
 The CLI generates provider-ready payloads with PRISM injection so you can plug it into any API client.
 
 ```bash
-# Install the package locally to get the `prism` command
-pip install -e .
+# Install the package to get the `prism` command
+pip install prism-intent
 
 # Create an OpenAI-ready payload from a single user message
 prism adapt --provider openai --message "Explain vector databases"
