@@ -37,6 +37,12 @@ prism adapt --provider anthropic --history examples/history.json --message "Summ
 - Disable injection globally with `PRISM_DISABLE_PERSONALIZATION=1`.
 - Output JSON includes the UIV and confidence unless you pass `--payload-only`.
 
+**CLI Demo (Before/After)**
+
+| Before | After |
+| :---: | :---: |
+| ![Before](assets/cli_before.png) | ![After](assets/cli_after.png) |
+
 ## 🔌 Provider Integration
 
 PRISM outputs provider-ready payloads. Pipe them into your own API client.
