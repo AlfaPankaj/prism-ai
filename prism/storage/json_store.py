@@ -5,12 +5,13 @@ from typing import Dict, Optional
 
 from prism.storage.base import ProfileStoreBase
 
+
 class JSONProfileStore(ProfileStoreBase):
     """
     A persistent JSON-based storage for User Intent Vectors.
     Mimics a document store like MongoDB but simplified for local use.
     """
-    
+
     def __init__(self, base_path: str = "data/profiles"):
         self.base_path = base_path
         if not os.path.exists(self.base_path):

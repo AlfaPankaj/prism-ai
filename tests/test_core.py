@@ -1,10 +1,12 @@
 import unittest
+
 from prism.metrics.clarification import ClarificationDetector
 from prism.extractor.uiv_builder import UIVBuilder
 from prism.adapter.prompt_injector import PrismAdapter
 
+
 class TestPrismCore(unittest.TestCase):
-    
+
     def setUp(self):
         self.detector = ClarificationDetector()
         self.builder = UIVBuilder()
@@ -45,6 +47,7 @@ class TestPrismCore(unittest.TestCase):
         ]
         wrapped = self.adapter.wrap_prompt("Explain decorators", history=history)
         self.assertEqual(wrapped, "Explain decorators")
+
 
 if __name__ == "__main__":
     unittest.main()

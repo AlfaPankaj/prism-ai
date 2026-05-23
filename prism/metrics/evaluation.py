@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import Dict, Optional
+from typing import Dict
 
 from prism.extractor.uiv_builder import UIVBuilder
 from prism.metrics.clarification import ClarificationDetector

@@ -1,8 +1,9 @@
 from datasets import load_dataset
 
+
 class LMSYSLoader:
     """Utility to load and stream the LMSYS-Chat-1M dataset."""
-    
+
     def __init__(self, dataset_name="OpenAssistant/oasst1"):
         self.dataset_name = dataset_name
 

@@ -3,6 +3,7 @@ from typing import Dict, List, Optional
 
 from prism.metrics.clarification import ClarificationDetector
 
+
 class UIVBuilder:
     """
     Builds and maintains a User Intent Vector (UIV) from conversation history.
@@ -22,12 +23,36 @@ class UIVBuilder:
     }
 
     SIGNAL_PATTERNS = [
-        (re.compile(r"\b(bullet points?|bullets?|list|numbered)\b", re.IGNORECASE), {"format": ("bullets", 1.0)}),
-        (re.compile(r"\b(paragraphs?|prose)\b", re.IGNORECASE), {"format": ("paragraph", 1.0)}),
-        (re.compile(r"\b(simple|simpler|layman|beginner|plain language|explain like i[' ]?m 5)\b", re.IGNORECASE), {"complexity": ("simple", 1.0)}),
-        (re.compile(r"\b(advanced|expert|detailed|more detail|deep dive|technical)\b", re.IGNORECASE), {"complexity": ("detailed", 1.0)}),
-        (re.compile(r"\b(short|brief|concise|to the point|in a hurry|quickly)\b", re.IGNORECASE), {"style": ("concise", 1.0)}),
-        (re.compile(r"\b(long|elaborate|thorough|in depth)\b", re.IGNORECASE), {"style": ("detailed", 1.0)}),
+        (
+            re.compile(r"\b(bullet points?|bullets?|list|numbered)\b", re.IGNORECASE),
+            {"format": ("bullets", 1.0)},
+        ),
+        (
+            re.compile(r"\b(paragraphs?|prose)\b", re.IGNORECASE),
+            {"format": ("paragraph", 1.0)},
+        ),
+        (
+            re.compile(
+                r"\b(simple|simpler|layman|beginner|plain language|explain like i[' ]?m 5)\b",
+                re.IGNORECASE,
+            ),
+            {"complexity": ("simple", 1.0)},
+        ),
+        (
+            re.compile(
+                r"\b(advanced|expert|detailed|more detail|deep dive|technical)\b",
+                re.IGNORECASE,
+            ),
+            {"complexity": ("detailed", 1.0)},
+        ),
+        (
+            re.compile(r"\b(short|brief|concise|to the point|in a hurry|quickly)\b", re.IGNORECASE),
+            {"style": ("concise", 1.0)},
+        ),
+        (
+            re.compile(r"\b(long|elaborate|thorough|in depth)\b", re.IGNORECASE),
+            {"style": ("detailed", 1.0)},
+        ),
     ]
 
     def __init__(self):

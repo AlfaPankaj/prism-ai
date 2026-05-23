@@ -30,3 +30,8 @@ dependencies = [
 
 [project.scripts]
 prism = "prism.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["prism*"]
+exclude = ["tests*", "research*", "assets*", "data*", "examples*"]

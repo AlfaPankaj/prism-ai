@@ -1,11 +1,13 @@
-from typing import List, Dict, Any
+from typing import Any, Dict, List
+
 from prism.extractor.uiv_builder import UIVBuilder
+
 
 class PrismAdapter:
     """
     Model-agnostic adapter that injects PRISM preferences into LLM prompts.
     """
-    
+
     def __init__(self):
         self.builder = UIVBuilder()
 
@@ -16,7 +18,7 @@ class PrismAdapter:
         profile: Dict[str, Any] = None,
     ) -> str:
         """
-        Takes a raw prompt and history, extracts UIV, 
+        Takes a raw prompt and history, extracts UIV,
         and returns an optimized prompt with injected preferences.
         """
         if not history:
@@ -28,10 +30,10 @@ class PrismAdapter:
 
         uiv = profile["uiv"]
         instructions = self.builder.get_system_instructions(uiv, confidence=profile["confidence"])
-        
+
         if not instructions:
             return prompt
-            
+
         return f"[PRISM Preference Injection: {instructions}]\n\n{prompt}"
 
     def wrap_messages(
@@ -40,7 +42,7 @@ class PrismAdapter:
         profile: Dict[str, Any] = None,
     ) -> List[Dict[str, str]]:
         """
-        Standardizes message list format (OpenAI/Anthropic style) 
+        Standardizes message list format (OpenAI/Anthropic style)
         by injecting preferences into the latest turn or system prompt.
         """
         if len(messages) < 2:
@@ -53,15 +55,15 @@ class PrismAdapter:
 
         uiv = profile["uiv"]
         instructions = self.builder.get_system_instructions(uiv, confidence=profile["confidence"])
-        
+
         if not instructions:
             return messages
-            
+
         new_messages = [msg.copy() for msg in messages]
-        
+
         if new_messages[0]["role"] == "system":
             new_messages[0]["content"] += f"\n\n{instructions}"
         else:
             new_messages.insert(0, {"role": "system", "content": instructions})
-            
+
         return new_messages
